@@ -1,3 +1,4 @@
+"""
 import imaplib
 import email
 import os
@@ -31,3 +32,4 @@ if email_message.get_content_maintype() == 'multipart':
             print(f"Archivo adjunto descargado: {filename}")
  # Cerrar la conexión con el servidor IMAP
 imap_server.logout()
+"""
