@@ -1,66 +1,33 @@
 import imaplib
 import email
-
-# Conectarse al servidor IMAP
-mail = imaplib.IMAP4_SSL('imap.gmail.com')
-mail.login('johnjairorodriguez384@gmail.com', 'xnahlejjrvvwkdum')
-
-# Seleccionar la bandeja de entrada
-mail.select('inbox')
-
-# Buscar correos electrónicos
-status, data = mail.search(None, 'ALL')
-
-# Iterar sobre los correos electrónicos
-for num in data[0].split():
-    # Obtener los encabezados del correo electrónico
-    status, header = mail.fetch(num, '(RFC822.HEADER)')
-
-    # Analizar los encabezados del correo electrónico
-    msg = email.message_from_bytes(header[0][1])
-    print('Asunto:', msg['Subject'])
-    print('De:', msg['From'])
-    print('Para:', msg['To'])
-    print('Fecha:', msg['Date'])
-    print('')
-
-# Cerrar la conexión
-mail.close()
-mail.logout()
-
-
-
-
-"""
-import imaplib
-import email
-
-# Conectarse al servidor IMAP
-mail = imaplib.IMAP4_SSL('imap.gmail.com')
-mail.login('tu_correo@gmail.com', 'tu_contraseña')
-
-# Seleccionar la bandeja de entrada
-mail.select('inbox')
-
-# Buscar el último correo electrónico no leído
-status, data = mail.search(None, 'UNSEEN')
-latest_email_id = data[0].split()[-1]
-
-# Obtener los encabezados del correo electrónico
-status, header = mail.fetch(latest_email_id, '(RFC822.HEADER)')
-
-# Analizar los encabezados del correo electrónico
-msg = email.message_from_bytes(header[0][1])
-print('Asunto:', msg['Subject'])
-print('De:', msg['From'])
-print('Para:', msg['To'])
-print('Fecha:', msg['Date'])
-
-# Marcar el correo electrónico como leído
-mail.store(latest_email_id, '+FLAGS', '\\Seen')
-
-# Cerrar la conexión
-mail.close()
-mail.logout()
-
-"""
+import os
+ # Establecer la conexión con el servidor IMAP de Gmail utilizando SSL
+imap_server = imaplib.IMAP4_SSL('imap.gmail.com')
+ # Iniciar sesión en tu cuenta de Gmail
+imap_server.login('bermudezriverajhon@gmail.com', 'twbmqlrgpqxcqxyo')
+ # Seleccionar la bandeja de entrada o la carpeta deseada
+imap_server.select('INBOX')
+ # Buscar los IDs de los correos electrónicos en orden descendente
+status, data = imap_server.search(None, 'ALL')
+email_ids = data[0].split()[::-1]  # Invertir el orden de los IDs
+ # Obtener el ID del último correo electrónico
+latest_email_id = email_ids[0]
+ # Obtener el contenido del último correo electrónico
+status, email_data = imap_server.fetch(latest_email_id, "(RFC822)")
+ # Parsear el contenido del correo electrónico
+raw_email = email_data[0][1]
+email_message = email.message_from_bytes(raw_email)
+ # Verificar si el correo electrónico tiene archivos adjuntos
+if email_message.get_content_maintype() == 'multipart':
+    for part in email_message.walk():
+        if part.get_content_maintype() == 'multipart' or part.get('Content-Disposition') is None:
+            continue
+        # Descargar el archivo adjunto
+        filename = part.get_filename()
+        if filename:
+            filepath = os.path.join(r'C:\archivos de prueba', filename)  # Convertir a cadena de texto
+            with open(filepath, 'wb') as f:
+                f.write(part.get_payload(decode=True))
+            print(f"Archivo adjunto descargado: {filename}")
+ # Cerrar la conexión con el servidor IMAP
+imap_server.logout()
